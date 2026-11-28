@@ -1,5 +1,10 @@
 # Estado · Presupuestín (28/11/2026)
 
+## Test de humo con Playwright (28/11/2026, PR de prioridad 4)
+- `e2e/humo.spec.ts` en escritorio y móvil (Pixel 7): portada con CSP y sin errores ni desbordamiento; flujo completo
+  audio → pasar a limpio → precio a la línea marcada → enviar → el cliente firma → el panel queda «Aprobado»;
+  enlace de cliente inválido. `npm run build && npm run test:e2e` (6 pruebas en verde). También en la CI.
+
 ## Modo presentación (28/11/2026, PR de prioridad 2)
 - Botón «Modo presentación» (solo en modo demo): ejecuta el guion de 60 s de PROSPECCION.md con subtítulos, contador y
   barra de progreso. Reinicia la demo, reproduce el audio del baño, pone precio a la línea marcada, envía, simula el
