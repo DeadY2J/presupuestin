@@ -33,5 +33,9 @@ a los 5 días y nada más.
 3. **(20–28 s) No inventa nada**: "Lo que no está en tu lista queda marcado para que le pongas precio tú." Pongo el precio.
 4. **(28–38 s) Enviar**: "Enviar por WhatsApp": el mensaje con el enlace, lo mandas tú desde tu teléfono.
 5. **(38–50 s) El cliente**: en otro móvil, el cliente revisa, firma con el dedo y acepta.
-6. **(50–60 s) El sello**: vuelvo al panel y cae el sello FIRMADO. Abro el PDF firmado con el anticipo calculado.
+6. **(50–60 s) El sello**: vuelvo al panel y cae el sello «Aprobado». Abro el PDF firmado con el anticipo calculado.
    Cierre: "Del 'pásame el presupuesto' al 'sí' en dos minutos. ¿Lo probamos con tus precios?"
+
+**Modo presentación**: en la demo, el botón «Modo presentación» ejecuta este guion solo, con subtítulos y los mismos
+tiempos (`src/presupuestin/guion.ts`), incluido el móvil del cliente que firma. «Detener» y «Reiniciar» lo cortan y
+dejan la demo como al principio. Útil para grabar el vídeo de una sola toma.

@@ -10,7 +10,7 @@ export const nombresUnidad: Record<Unidad, string> = { ud: "ud.", m: "m", m2: "m
 export const nombresEstado: Record<Estado, string> = {
   borrador: "Borrador",
   enviado: "Enviado",
-  firmado: "Firmado",
+  firmado: "Aprobado",
   rechazado: "Rechazado",
   vencido: "Vencido",
 };

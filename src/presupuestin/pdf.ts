@@ -13,9 +13,9 @@ const A4: [number, number] = [595.28, 841.89];
 const MARGEN = 48;
 const TINTA = rgb(0.09, 0.13, 0.12);
 const SUAVE = rgb(0.36, 0.42, 0.4);
-const ACENTO = rgb(0.69, 0.33, 0.13); // terracota
+const ACENTO = rgb(0.11, 0.25, 0.58); // tinta azul
 const LINEA = rgb(0.85, 0.83, 0.8);
-const VERDE = rgb(0.12, 0.42, 0.29);
+const SELLO = rgb(0.76, 0.13, 0.18); // rojo del sello «Aprobado»
 
 const UNIDADES = nombresUnidad;
 
@@ -216,7 +216,7 @@ export async function generarPdf(p: Presupuesto, ahora: Date = new Date()): Prom
   escribir("ACEPTACIÓN DEL CLIENTE", MARGEN, { tam: 8, fuente: negrita, color: SUAVE });
   y -= 16;
   if (estado === "firmado" && p.firma) {
-    escribir(`Aceptado por ${p.firma.nombre}`, MARGEN, { fuente: negrita, color: VERDE, tam: 12 });
+    escribir(`Aceptado por ${p.firma.nombre}`, MARGEN, { fuente: negrita, color: SELLO, tam: 12 });
     y -= 14;
     escribir(`El ${fechaHora(p.firma.fecha)}, desde el enlace personal enviado por WhatsApp.`, MARGEN, { tam: 9, color: SUAVE });
     y -= 12;
