@@ -20,7 +20,7 @@ medios y bajos documentados abajo, propios de una demo sin base de datos.
 | S5 | Media | Cuerpos JSON enormes para agotar memoria. | **Corregido**: 413 si `content-length` supera 2,5 MB; Zod limita longitudes de todos los campos. Test incluido. |
 | S6 | Media | Abuso de las rutas (fuerza bruta de tokens, spam de firmas). | **Corregido**: límites por IP (respuestas del cliente 10/min, vista 60/min, panel 20–240/min). Test incluido. En memoria: con varias instancias hace falta uno compartido (Upstash/Redis). |
 | S7 | Media | Cabeceras de seguridad. | **Corregido** en `next.config.ts`: nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy (micrófono solo propio), HSTS, CSP mínima y sin `X-Powered-By`. Verificado con `curl -I`. La página del cliente usa además `referrer: no-referrer` para no filtrar el token. |
-| S8 | Media | CSP completa (script-src/style-src) no aplicada: Next.js necesita nonces. | Abierto, pendiente antes de producción. |
+| S8 | Media | CSP completa (script-src/style-src) no aplicada: Next.js necesita nonces. | **Corregido (28/11/2026)**: CSP completa con nonce por petición en `src/proxy.ts` (ver sección de revisión). |
 | S9 | Media | En modo demo cualquiera ve la lista y los enlaces de firma de todos los presupuestos. | Aceptado: solo hay datos ficticios y se avisa en la interfaz. No desplegar con clientes reales sin `PRESUPUESTIN_TOKEN`. |
 | S10 | Baja | Los errores internos podrían filtrar detalles. | **Corregido**: los errores del motor devuelven 409 con un mensaje para personas; cualquier otro, 500 genérico. |
 | S11 | Baja | La aceptación no guarda IP ni agente de usuario como evidencia. | Abierto (mejora de fase 2, con aviso de privacidad). |
@@ -48,6 +48,36 @@ Comprobado sin hallazgos:
 
 ## Pendiente antes de producción real
 1. Supabase con RLS y autenticación del autónomo (S12).
-2. CSP con nonces (S8) y límite de peticiones compartido (S6).
+2. Límite de peticiones compartido (S6). (CSP con nonces, S8, corregida el 28/11/2026.)
 3. Medir accesibilidad y rendimiento (Lighthouse/axe) y probar en móviles reales.
 4. Revisar con un abogado del país el texto de aceptación y la conservación de evidencias (S11).
+
+## Revisión del 28/11/2026 (fase 4 completa)
+
+Pasada de auditoría sobre `main` de las seis apps de la Fábrica, en la nube. Resultado: **sin críticos, altos ni medios
+abiertos que se puedan corregir sin cuentas reales**. Lo que depende de cuentas reales queda pendiente y no se da por bueno.
+
+Corregido en esta pasada:
+- **CSP completa** (S8): `src/proxy.ts` genera un nonce por petición y aplica `default-src 'self'; script-src 'self' 'nonce-…' 'strict-dynamic'`
+  (sin `unsafe-inline` ni `unsafe-eval` en producción), `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`
+  y `upgrade-insecure-requests`. `style-src` mantiene `'unsafe-inline'` porque React usa atributos `style` (riesgo bajo). Las páginas
+  pasan a render dinámico (`connection()` en el layout) para que el nonce sea nuevo en cada visita. Las rutas API llevan
+  `frame-ancestors 'none'; object-src 'none'; base-uri 'none'`. Política en `src/*/csp.ts` con test (`tests/csp.test.ts`).
+
+Comprobado (todo contra `next build` + `next start`, Chromium sin cabeza):
+
+| Comprobación | Resultado |
+|---|---|
+| Typecheck · tests · build | OK · 43 tests en verde · OK |
+| `npm audit` | 0 vulnerabilidades |
+| CSP en navegador | Cabecera con nonce en la página; scripts de Next con nonce; React hidrata y responde a clics; 0 errores en consola |
+| Accesibilidad (axe-core 4.10, WCAG 2 A/AA, vista inicial) | 0 incidencias |
+| Móvil (375 px) | Sin desbordamiento horizontal |
+| Rendimiento (Pixel 5 emulado, CPU ×4, red lenta) | LCP 0,7 s · CLS 0 · TTFB ≈ 150 ms (local) |
+| Voseo y modismos | Ninguno fuera de los tests de modismos y de los patrones que sirven para entender al usuario |
+| Documentos de la Fábrica | ALCANCE, AUDITORIA, PRESUPUESTO (marcadores `[TARIFA_HORA_USD]` y `[CUOTA_MENSUAL_USD]` sin rellenar), PROSPECCION y STATUS presentes |
+
+Límites honestos de esta pasada: axe solo cubre la vista inicial (no todos los estados), el rendimiento se midió en local
+(no en Vercel ni con Lighthouse) y no hubo prueba en móviles físicos.
+
+**Pendiente que no se puede dar por bueno sin cuentas reales:** Supabase (RLS por autónomo y bucket privado de fotos), y la fase 2 (IA, Mercado Pago, WhatsApp Cloud API) con cuentas reales.

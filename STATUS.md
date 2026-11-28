@@ -1,5 +1,11 @@
 # Estado · Presupuestín (27/11/2026)
 
+## Revisión del 28/11/2026 (auditoría fase 4)
+- CSP completa con nonce por petición (`src/proxy.ts`), verificada en navegador sin errores.
+- Typecheck, 43 tests, build y `npm audit` (0 vulnerabilidades) en verde; axe sin incidencias en la vista inicial; sin desbordamiento a 375 px.
+- Pendiente con cuentas reales (no se da por bueno): Supabase (RLS por autónomo y bucket privado de fotos), y la fase 2 (IA, Mercado Pago, WhatsApp Cloud API) con cuentas reales.
+- Detalle en `AUDITORIA.md`. No desplegado.
+
 ## Hecho
 - Motor puro en centavos con ciclo de vida completo (borrador, enviado, firmado, rechazado, vencido, reapertura con versión).
 - Intérprete de notas por reglas, sin IA, que nunca inventa precios.
@@ -13,7 +19,7 @@
 ## Pendiente
 - No desplegado (por indicación de Jorge). Para Vercel: importar el repo y, si es pública, dejarla en modo demo.
 - Fase 2: IA para audios y fotos, Mercado Pago para el anticipo, WhatsApp Cloud API, Supabase y autenticación, CFDI/ARCA.
-- Antes de producción: CSP con nonces, límite de peticiones compartido, Lighthouse/axe y prueba en móviles reales.
+- Antes de producción: límite de peticiones compartido, Lighthouse en Vercel y prueba en móviles reales (axe ya hecho).
 - La CI no se ha visto correr todavía en GitHub Actions (se activa con el PR).
 
 ## Cómo probarlo
