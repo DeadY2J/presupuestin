@@ -1,4 +1,13 @@
-# Estado · Presupuestín (27/11/2026)
+# Estado · Presupuestín (28/11/2026)
+
+## Rediseño visual (28/11/2026, PR de prioridad 1)
+- Identidad propia: documento formal en blanco frío, tinta azul (#1D3F95) y un único rojo para el sello «Aprobado» (#C3202E).
+  Tipografías Archivo (interfaz) y Newsreader (documento), alojadas en el proyecto (OFL).
+- La hoja del presupuesto se escribe en vivo mientras se dicta o se reproduce un audio de ejemplo (el intérprete corre
+  también en el navegador; el servidor sigue siendo quien guarda y calcula).
+- Al aprobarse, el sello rojo cae sobre la hoja (panel y página del cliente). Respeta `prefers-reduced-motion`.
+- El estado «firmado» se muestra como «Aprobado». El PDF usa los mismos colores.
+- Verificado: typecheck, 43 tests y build en verde; sin errores de consola con la CSP; sin desbordamiento a 375 px.
 
 ## Revisión del 28/11/2026 (auditoría fase 4)
 - CSP completa con nonce por petición (`src/proxy.ts`), verificada en navegador sin errores.
