@@ -1,4 +1,25 @@
-# Estado · Presupuestín (27/11/2026)
+# Estado · Presupuestín (28/11/2026)
+
+## Test de humo con Playwright (28/11/2026, PR de prioridad 4)
+- `e2e/humo.spec.ts` en escritorio y móvil (Pixel 7): portada con CSP y sin errores ni desbordamiento; flujo completo
+  audio → pasar a limpio → precio a la línea marcada → enviar → el cliente firma → el panel queda «Aprobado»;
+  enlace de cliente inválido. `npm run build && npm run test:e2e` (6 pruebas en verde). También en la CI.
+
+## Modo presentación (28/11/2026, PR de prioridad 2)
+- Botón «Modo presentación» (solo en modo demo): ejecuta el guion de 60 s de PROSPECCION.md con subtítulos, contador y
+  barra de progreso. Reinicia la demo, reproduce el audio del baño, pone precio a la línea marcada, envía, simula el
+  móvil del cliente (la firma pasa por la ruta real del cliente con su token) y cae el sello «Aprobado».
+- «Detener», «Reiniciar» y «Repetir». Mientras corre, el resto del panel queda inerte para no interferir.
+- Guion como datos en `src/presupuestin/guion.ts`, con test (orden, 60 s, línea sin precio, español neutro): 46 tests.
+
+## Rediseño visual (28/11/2026, PR de prioridad 1)
+- Identidad propia: documento formal en blanco frío, tinta azul (#1D3F95) y un único rojo para el sello «Aprobado» (#C3202E).
+  Tipografías Archivo (interfaz) y Newsreader (documento), alojadas en el proyecto (OFL).
+- La hoja del presupuesto se escribe en vivo mientras se dicta o se reproduce un audio de ejemplo (el intérprete corre
+  también en el navegador; el servidor sigue siendo quien guarda y calcula).
+- Al aprobarse, el sello rojo cae sobre la hoja (panel y página del cliente). Respeta `prefers-reduced-motion`.
+- El estado «firmado» se muestra como «Aprobado». El PDF usa los mismos colores.
+- Verificado: typecheck, 43 tests y build en verde; sin errores de consola con la CSP; sin desbordamiento a 375 px.
 
 ## Revisión del 28/11/2026 (auditoría fase 4)
 - CSP completa con nonce por petición (`src/proxy.ts`), verificada en navegador sin errores.
