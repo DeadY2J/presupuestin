@@ -1,51 +1,106 @@
 @import "tailwindcss";
 
+/*
+ * Identidad de Presupuestín: un documento formal que se escribe en vivo.
+ * Blanco frío de oficina, tinta azul de bolígrafo y un único rojo, reservado al sello «Aprobado».
+ * El amarillo de marcador solo señala lo que falta por precio.
+ */
 @theme {
-  --color-papel: #f7f3ec;
-  --color-tarjeta: #fffdf9;
-  --color-tinta: #1d211f;
-  --color-tinta-suave: #5c605b;
-  --color-borde: #e4ddd1;
-  --color-terracota: #b0541f;
-  --color-terracota-oscuro: #8d3f12;
-  --color-terracota-claro: #f6e4d8;
-  --color-ocre: #c9922e;
-  --color-verde: #1f6b4a;
-  --color-verde-claro: #dcefe4;
-  --color-alerta: #a8431f;
-  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --color-escritorio: #e8edf4;
+  --color-hoja: #ffffff;
+  --color-noche: #14213d;
+  --color-tinta: #1d3f95;
+  --color-tinta-viva: #2a52b8;
+  --color-tinta-clara: #e3e9f7;
+  --color-grafito: #556078;
+  --color-regla: #d2dbe9;
+  --color-sello: #c3202e;
+  --color-marcador: #ffec8a;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
 }
 
-html { background: var(--color-papel); color: var(--color-tinta); }
-body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-h1, h2 { font-variation-settings: "opsz" 48; }
+html { background: var(--color-escritorio); color: var(--color-noche); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.5; }
 
-:focus-visible { outline: 2px solid var(--color-terracota); outline-offset: 2px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--color-tinta-viva); outline-offset: 2px; border-radius: 3px; }
 
-.cifra { font-family: var(--font-cifras), var(--font-bricolage), sans-serif; font-variation-settings: "wdth" 75; font-feature-settings: "tnum"; letter-spacing: -0.01em; }
+/* Cifras de documento: alineadas en columna, con forma de número de imprenta. */
+.num { font-variant-numeric: tabular-nums lining-nums; letter-spacing: -0.005em; }
+.serif { font-family: var(--font-serif); font-optical-sizing: auto; }
 
-/* Papel milimetrado de libreta de obra detrás de las notas. */
-.libreta {
-  background-color: var(--color-tarjeta);
-  background-image: linear-gradient(rgb(176 84 31 / 0.08) 1px, transparent 1px);
-  background-size: 100% 1.75rem;
-  line-height: 1.75rem;
+/* La hoja: papel blanco con canto nítido, apoyada sobre el escritorio. */
+.hoja {
+  background: var(--color-hoja);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgb(20 33 61 / 0.06), 0 1px 0 var(--color-regla), 0 24px 48px -28px rgb(20 33 61 / 0.45);
 }
 
-/* El momento wow: el presupuesto firmado se sella en verde. */
-@keyframes sello {
-  0% { transform: scale(1.6) rotate(-14deg); opacity: 0; }
-  60% { transform: scale(0.94) rotate(-6deg); opacity: 1; }
-  100% { transform: scale(1) rotate(-6deg); opacity: 1; }
+/* Campos de formulario como renglones de un impreso. */
+.renglon-campo {
+  width: 100%;
+  border: 0;
+  border-bottom: 1.5px solid var(--color-regla);
+  background: transparent;
+  padding: 0.35rem 0 0.3rem;
+  color: var(--color-noche);
 }
-.sello { animation: sello 0.7s cubic-bezier(.2,.8,.2,1) both; }
+.renglon-campo:hover { border-bottom-color: var(--color-grafito); }
+.renglon-campo:focus { border-bottom-color: var(--color-tinta); outline: none; }
+.renglon-campo:focus-visible { outline: 2px solid var(--color-tinta-viva); outline-offset: 3px; }
+.renglon-campo::placeholder { color: #8b94a8; }
 
-@keyframes aparecer { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-.aparece { animation: aparecer .35s ease-out both; }
+/* Celdas editables dentro de la hoja. */
+.celda {
+  border: 1px solid var(--color-regla);
+  border-radius: 3px;
+  background: #fbfcfe;
+  padding: 0.2rem 0.35rem;
+}
+.celda:hover { border-color: var(--color-grafito); }
 
-@keyframes grabando { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
-.grabando { animation: grabando 1s infinite; }
+/* Lo pendiente de precio, subrayado con marcador. */
+.marcador {
+  background: linear-gradient(transparent 18%, var(--color-marcador) 18%, var(--color-marcador) 88%, transparent 88%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.2em;
+  margin: 0 -0.2em;
+}
+
+/* Las líneas del borrador en vivo se escriben de izquierda a derecha, como con un bolígrafo. */
+@keyframes escribir { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.escribe > td > * { animation: escribir 0.55s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+
+/* El momento memorable: el sello rojo cae sobre el documento. */
+.sello {
+  color: var(--color-sello);
+  border: 3px solid currentColor;
+  box-shadow: inset 0 0 0 2px var(--color-hoja), inset 0 0 0 4px currentColor;
+  border-radius: 10px;
+  transform: rotate(-9deg);
+  mix-blend-mode: multiply;
+  /* Textura de tampón: la tinta no cubre del todo. */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.5 1.5'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23r)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.5 1.5'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23r)'/%3E%3C/svg%3E");
+}
+.sello-texto { font-stretch: 68%; font-weight: 850; letter-spacing: 0.06em; line-height: 0.9; }
+
+@keyframes estampar {
+  0% { transform: scale(2.4) rotate(-2deg); opacity: 0; }
+  55% { transform: scale(0.92) rotate(-10deg); opacity: 1; }
+  75% { transform: scale(1.03) rotate(-9deg); }
+  100% { transform: scale(1) rotate(-9deg); opacity: 1; }
+}
+.sello.cae { animation: estampar 0.6s cubic-bezier(0.25, 0.9, 0.3, 1) both; }
+
+/* La hoja acusa el golpe del sello. */
+@keyframes golpe { 0%, 100% { transform: none; } 55% { transform: translateY(3px) scale(0.997); } }
+.hoja.golpe { animation: golpe 0.6s ease-out both; }
+
+@keyframes parpadeo { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
+.parpadea { animation: parpadeo 1.2s infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sello, .aparece, .grabando { animation: none; }
+  .escribe > td > *, .sello.cae, .hoja.golpe, .parpadea { animation: none; }
 }
