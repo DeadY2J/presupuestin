@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --color-papel: #f7f3ec;
+  --color-tarjeta: #fffdf9;
+  --color-tinta: #1d211f;
+  --color-tinta-suave: #5c605b;
+  --color-borde: #e4ddd1;
+  --color-terracota: #b0541f;
+  --color-terracota-oscuro: #8d3f12;
+  --color-terracota-claro: #f6e4d8;
+  --color-ocre: #c9922e;
+  --color-verde: #1f6b4a;
+  --color-verde-claro: #dcefe4;
+  --color-alerta: #a8431f;
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+}
+
+html { background: var(--color-papel); color: var(--color-tinta); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+h1, h2 { font-variation-settings: "opsz" 48; }
+
+:focus-visible { outline: 2px solid var(--color-terracota); outline-offset: 2px; border-radius: 4px; }
+
+.cifra { font-family: var(--font-cifras), var(--font-bricolage), sans-serif; font-variation-settings: "wdth" 75; font-feature-settings: "tnum"; letter-spacing: -0.01em; }
+
+/* Papel milimetrado de libreta de obra detrás de las notas. */
+.libreta {
+  background-color: var(--color-tarjeta);
+  background-image: linear-gradient(rgb(176 84 31 / 0.08) 1px, transparent 1px);
+  background-size: 100% 1.75rem;
+  line-height: 1.75rem;
+}
+
+/* El momento wow: el presupuesto firmado se sella en verde. */
+@keyframes sello {
+  0% { transform: scale(1.6) rotate(-14deg); opacity: 0; }
+  60% { transform: scale(0.94) rotate(-6deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-6deg); opacity: 1; }
+}
+.sello { animation: sello 0.7s cubic-bezier(.2,.8,.2,1) both; }
+
+@keyframes aparecer { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.aparece { animation: aparecer .35s ease-out both; }
+
+@keyframes grabando { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
+.grabando { animation: grabando 1s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sello, .aparece, .grabando { animation: none; }
+}
