@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatoDinero, nombresEstado, nombresUnidad } from "@/presupuestin/formato";
+import { guion, ejemploGuion, precioManualGuion, DURACION_GUION } from "@/presupuestin/guion";
 import { interpretar } from "@/presupuestin/interprete";
 import type { VistaPanel } from "@/presupuestin/servicio";
 import type { Cliente, Estado, Linea, Unidad } from "@/presupuestin/tipos";
 import { Recorrido, Sello } from "./documento";
+import { BarraPresentacion, TelefonoCliente, type FaseTelefono } from "./presentacion";
 
 type PartidaVisible = { id: string; nombre: string; unidad: Unidad; precio: number };
 type Ejemplo = { titulo: string; cliente: Cliente; notas: string };
@@ -102,6 +104,9 @@ export function Taller(props: Props) {
   const [aviso, setAviso] = useState<{ tipo: "error" | "ok"; texto: string } | null>(null);
   const [whatsapp, setWhatsapp] = useState<WhatsApp | null>(null);
   const [recienFirmado, setRecienFirmado] = useState<string | null>(null);
+  const [presentacion, setPresentacion] = useState<{ paso: number; inicio: number; fin: boolean } | null>(null);
+  const [telefono, setTelefono] = useState<{ fase: FaseTelefono; nombre: string; total: string } | null>(null);
+  const corrida = useRef(0);
   const reconocimiento = useRef<Reconocimiento | null>(null);
   const temporizador = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -340,7 +345,110 @@ export function Taller(props: Props) {
     setActual(null);
     setWhatsapp(null);
     setRecienFirmado(null);
+    setNotas("");
+    setCliente(clienteVacio);
+    setFotosPendientes([]);
+    setAviso(null);
     await cargarLista();
+  }
+
+  /* ── Modo presentación: ejecuta el guion de 60 s de PROSPECCION.md ── */
+
+  // Las funciones de arriba leen el estado de su render; el guion siempre llama a las del último.
+  const ultimo = useRef({ reproducirEjemplo, armar, guardar, accion, cambiarLinea, abrir, refrescarActual, reiniciar, actual, lineas, reproduciendo, api });
+  ultimo.current = { reproducirEjemplo, armar, guardar, accion, cambiarLinea, abrir, refrescarActual, reiniciar, actual, lineas, reproduciendo, api };
+
+  function detener() {
+    corrida.current += 1;
+    if (temporizador.current) clearInterval(temporizador.current);
+    temporizador.current = null;
+    setReproduciendo(null);
+    setTelefono(null);
+    setPresentacion(null);
+  }
+
+  async function presentar() {
+    const id = ++corrida.current;
+    const sigue = () => {
+      if (corrida.current !== id) throw new Error("detenida");
+    };
+    const esperar = async (ms: number) => {
+      await new Promise((r) => setTimeout(r, Math.max(0, ms)));
+      sigue();
+    };
+    const inicio = Date.now();
+    const hasta = (segundo: number) => esperar(inicio + segundo * 1000 - Date.now());
+    const paso = (i: number) => setPresentacion({ paso: i, inicio, fin: false });
+    const verHoja = () => document.getElementById("hoja")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    try {
+      paso(0);
+      await ultimo.current.reiniciar();
+      setAviso(null);
+      sigue();
+
+      await hasta(guion[1].desde);
+      paso(1);
+      verHoja();
+      ultimo.current.reproducirEjemplo(ejemploGuion);
+      await esperar(300);
+      while (ultimo.current.reproduciendo) await esperar(150);
+      await esperar(900);
+      await ultimo.current.armar();
+      sigue();
+
+      await hasta(guion[2].desde);
+      paso(2);
+      const pendiente = ultimo.current.lineas.find((l) => l.precioUnitario === null);
+      await esperar(1800);
+      if (pendiente) ultimo.current.cambiarLinea(pendiente.id, { precioUnitario: precioManualGuion });
+      await esperar(1500);
+      await ultimo.current.guardar();
+      sigue();
+
+      await hasta(guion[3].desde);
+      paso(3);
+      await ultimo.current.accion("enviar");
+      sigue();
+
+      await hasta(guion[4].desde);
+      paso(4);
+      const enviado = ultimo.current.actual;
+      if (!enviado?.enlaceFirma) throw new Error("sin enlace");
+      const enlace = new URL(enviado.enlaceFirma, window.location.origin);
+      const token = enlace.searchParams.get("t") ?? "";
+      const nombre = enviado.cliente.nombre || ejemploGuion.cliente.nombre;
+      setTelefono({ fase: "revisa", nombre, total: dinero(enviado.totales.total) });
+      await esperar(2600);
+      setTelefono((t) => t && { ...t, fase: "firma" });
+      await esperar(4600);
+      // El cliente firma de verdad por su enlace: misma ruta y mismas comprobaciones que desde su móvil.
+      const ruta = `/api/firma/${encodeURIComponent(enviado.id)}`;
+      const vista = await fetch(`${ruta}?t=${encodeURIComponent(token)}`).then((r) => r.json());
+      await fetch(ruta, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accion: "firmar", nombre, huella: vista.presupuesto?.huella, trazo: null, acepto: true, t: token }),
+      });
+      setTelefono((t) => t && { ...t, fase: "listo" });
+      sigue();
+
+      await hasta(guion[5].desde);
+      paso(5);
+      setTelefono(null);
+      const { presupuesto } = await ultimo.current.api<{ presupuesto: VistaPanel }>(`/api/presupuestos/${enviado.id}`);
+      sigue();
+      ultimo.current.refrescarActual(presupuesto);
+      ultimo.current.abrir(presupuesto);
+      verHoja();
+
+      await hasta(DURACION_GUION);
+      setPresentacion({ paso: guion.length - 1, inicio, fin: true });
+    } catch (e) {
+      if (corrida.current !== id) return; // detenida por la persona
+      setTelefono(null);
+      setPresentacion(null);
+      setAviso({ tipo: "error", texto: `La presentación se detuvo: ${(e as Error).message}. Reinicia la demo y vuelve a probar.` });
+    }
   }
 
   // Mientras se dicta o escribe, la hoja se va escribiendo con lo que el intérprete reconoce.
@@ -365,12 +473,13 @@ export function Taller(props: Props) {
         {props.demo && (
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <span className="text-grafito">Demo con datos ficticios</span>
-            <button onClick={reiniciar} className="rounded-md border border-grafito/40 px-3 py-1 text-noche hover:border-tinta hover:text-tinta">Reiniciar demo</button>
+            <button onClick={presentar} disabled={!!presentacion && !presentacion.fin} className="rounded-md bg-tinta px-3 py-1 font-medium text-white hover:bg-tinta-viva disabled:opacity-45">Modo presentación</button>
+            <button onClick={() => { detener(); reiniciar(); }} className="rounded-md border border-grafito/40 px-3 py-1 text-noche hover:border-tinta hover:text-tinta">Reiniciar demo</button>
           </div>
         )}
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+      <main className={`mx-auto max-w-6xl px-4 sm:px-6 ${presentacion ? "pb-56" : "pb-20"}`} inert={presentacion && !presentacion.fin ? true : undefined}>
         {pideClave && (
           <form
             className="hoja mb-6 flex flex-wrap items-end gap-3 p-4"
@@ -739,6 +848,18 @@ export function Taller(props: Props) {
           </section>
         </div>
       </main>
+
+      {telefono && <TelefonoCliente {...telefono} negocio={props.negocio.nombre} />}
+      {presentacion && (
+        <BarraPresentacion
+          paso={presentacion.paso}
+          inicio={presentacion.inicio}
+          fin={presentacion.fin}
+          onDetener={detener}
+          onRepetir={presentar}
+          onReiniciar={() => { detener(); reiniciar(); }}
+        />
+      )}
     </div>
   );
 }

@@ -104,3 +104,8 @@ body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-
 @media (prefers-reduced-motion: reduce) {
   .escribe > td > *, .sello.cae, .hoja.golpe, .parpadea { animation: none; }
 }
+
+/* Modo presentación: la firma del cliente se dibuja sola. */
+@keyframes dibujar { from { stroke-dashoffset: 420; } to { stroke-dashoffset: 0; } }
+.trazo-firma { stroke-dasharray: 420; animation: dibujar 2.6s 0.9s ease-in-out both; }
+@media (prefers-reduced-motion: reduce) { .trazo-firma { animation: none; stroke-dasharray: none; } }

@@ -1,5 +1,12 @@
 # Estado · Presupuestín (28/11/2026)
 
+## Modo presentación (28/11/2026, PR de prioridad 2)
+- Botón «Modo presentación» (solo en modo demo): ejecuta el guion de 60 s de PROSPECCION.md con subtítulos, contador y
+  barra de progreso. Reinicia la demo, reproduce el audio del baño, pone precio a la línea marcada, envía, simula el
+  móvil del cliente (la firma pasa por la ruta real del cliente con su token) y cae el sello «Aprobado».
+- «Detener», «Reiniciar» y «Repetir». Mientras corre, el resto del panel queda inerte para no interferir.
+- Guion como datos en `src/presupuestin/guion.ts`, con test (orden, 60 s, línea sin precio, español neutro): 46 tests.
+
 ## Rediseño visual (28/11/2026, PR de prioridad 1)
 - Identidad propia: documento formal en blanco frío, tinta azul (#1D3F95) y un único rojo para el sello «Aprobado» (#C3202E).
   Tipografías Archivo (interfaz) y Newsreader (documento), alojadas en el proyecto (OFL).

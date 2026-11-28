@@ -11,7 +11,7 @@ Cuarta demo de la Fábrica de software para pymes de Latinoamérica (autónomos 
 2. **Armar presupuesto**: el intérprete lo convierte en partidas con tus precios de catálogo. Lo que no reconoce queda
    marcado "por definir": Presupuestín no inventa precios.
 3. **Enviar por WhatsApp**: mensaje listo y enlace personal para el cliente; lo envías tú desde tu teléfono.
-4. **El cliente firma** desde el móvil (nombre + firma con el dedo) y tu panel se sella como FIRMADO al instante.
+4. **El cliente firma** desde el móvil (nombre + firma con el dedo) y tu panel recibe el sello rojo «Aprobado» al instante.
 5. **PDF** con tus datos, fotos de la obra, totales con IVA, anticipo y la constancia de aceptación con huella SHA-256.
 
 | Cliente en el móvil | PDF firmado |
@@ -39,7 +39,7 @@ sinónimos con que el autónomo nombra cada partida.
    "por definir". Le pongo precio.
 3. (25–35 s) "Enviar por WhatsApp": se abre el mensaje con el enlace.
 4. (35–50 s) En el móvil del cliente: revisa, firma con el dedo, "Firmar y aceptar".
-5. (50–60 s) Vuelvo al panel: el sello FIRMADO cae sobre el presupuesto. Abro el PDF firmado. "De la obra al sí del
+5. (50–60 s) Vuelvo al panel: el sello «Aprobado» cae sobre el presupuesto. Abro el PDF firmado. "De la obra al sí del
    cliente en dos minutos".
 
 ## Documentación
